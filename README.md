@@ -1,6 +1,8 @@
-# javascript-action-template
+# check-if-pr-has-code-changes
 
-This template can be used to quickly start a new custom js action repository.  Click the `Use this template` button at the top to get started.
+This action has been customized for [im-open's] needs and may not work exactly for your use case. Please feel free to fork this repository if it needs to be customized.
+
+This action can determine if changes were made to specific files or folders which make up the code portion of a custom action. It is intended to be used in the same repo where the PRs are created and in a workflow with a `pull_request` trigger.
 
 ## Index
 
@@ -13,78 +15,50 @@ This template can be used to quickly start a new custom js action repository.  C
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
 
-## TODOs
-
-- README.md
-  - [ ] Update the Inputs section with the correct action inputs
-  - [ ] Update the Outputs section with the correct action outputs
-  - [ ] Update the Usage Example section with the correct usage
-- package.json
-  - [ ] Update the `name` with the new action value
-- src/main.js
-  - [ ] Implement your custom javascript action
-- action.yml
-  - [ ] Fill in the correct name, description, inputs and outputs
-- .prettierrc.json
-  - [ ] Update any preferences you might have
-- CODEOWNERS
-  - [ ] Update as appropriate
-- Repository Settings
-  - [ ] On the *Options* tab check the box to *Automatically delete head branches*
-  - [ ] On the *Options* tab update the repository's visibility (must be done by an org owner)
-  - [ ] On the *Branches* tab add a branch protection rule
-    - [ ] Check *Require pull request reviews before merging*
-    - [ ] Check *Dismiss stale pull request approvals when new commits are pushed*
-    - [ ] Check *Require review from Code Owners*
-    - [ ] Check *Include Administrators*
-  - [ ] On the *Manage Access* tab add the appropriate groups
-- About Section (accessed on the main page of the repo, click the gear icon to edit)
-  - [ ] The repo should have a short description of what it is for
-  - [ ] Add one of the following topic tags:
-    | Topic Tag       | Usage                                    |
-    | --------------- | ---------------------------------------- |
-    | az              | For actions related to Azure             |
-    | code            | For actions related to building code     |
-    | certs           | For actions related to certificates      |
-    | db              | For actions related to databases         |
-    | git             | For actions related to Git               |
-    | iis             | For actions related to IIS               |
-    | microsoft-teams | For actions related to Microsoft Teams   |
-    | svc             | For actions related to Windows Services  |
-    | jira            | For actions related to Jira              |
-    | meta            | For actions related to running workflows |
-    | pagerduty       | For actions related to PagerDuty         |
-    | test            | For actions related to testing           |
-    | tf              | For actions related to Terraform         |
-  - [ ] Add any additional topics for an action if they apply
-  - [ ] The Packages and Environments boxes can be unchecked
-- Search for any remaining TODOs and address them.
-
 ## Inputs
 
-| Parameter | Is Required | Default | Description           |
-| --------- | ----------- | ------- | --------------------- |
-| `input`   | true        |         | Description goes here |
+| Parameter           | Is Required | Default | Description                                                       |
+| ------------------- | ----------- | ------- | ----------------------------------------------------------------- |
+| `files-with-code`   | false       | N/A     | A comma separated list of code files to check for changes.        |
+| `folders-with-code` | false       | N/A     | A comma separated list of folders with code to check for changes. |
+| `token`             | true        | N/A     | A token with permission to retrieve PR information.               |
 
 ## Outputs
 
-| Output   | Description           | Possible Values |
-| -------- | --------------------- | --------------- |
-| `output` | Description goes here |                 |
+| Output             | Description                                                                   |
+| ------------------ | ----------------------------------------------------------------------------- |
+| `HAS_CODE_CHANGES` | Flag indicating whether changes were found in the code files or code folders. |
 
 ## Usage Examples
 
 ```yml
 jobs:
-  jobname:
-    runs-on: ubuntu-20.04
+  build-action:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: ''
-        uses: im-open/thisrepo@v1.0.0 # TODO:  fix the action name
+      - name: Recompile and Format action
+        run: npm run build
+
+      - name: Check for code changes to the action
+        id: pr
+        uses: im-open/check-if-pr-has-code-changes@v1.0.0
         with:
-          input: ''
+          files-with-code: 'action.yml,package.json,package-lock.json'
+          folders-with-code: 'src,dist'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit unstaged changes if there are code changes
+        if: steps.pr.outputs.HAS_CODE_CHANGES == 'true'
+        run: |
+          if [[ "$(git status --porcelain)" != "" ]]; then
+            git add .
+            git commit -m "Commit the recompiled action."
+            git push origin HEAD:${{ github.head_ref }}
+          else
+            echo "There were no changes to commit"
+          fi
 ```
 
 ## Contributing
@@ -98,7 +72,7 @@ When a pull request is created, a workflow will run that will recompile the acti
 
 1. The action has been recompiled. See the [Recompiling](#recompiling-manually) section below for more details.
 1. The `README.md` example has been updated with the new version. See [Incrementing the Version](#incrementing-the-version).
-1. This should happen automatically with most pull requests as part of the build workflow.  There may be some instances where the bot does not have permission to push back to the branch though so these steps should be done manually on those branches.
+1. This should happen automatically with most pull requests as part of the build workflow. There may be some instances where the bot does not have permission to push back to the branch though so these steps should be done manually on those branches.
 
 ### Recompiling Manually
 
@@ -117,13 +91,13 @@ its dependencies into a single file located in the `dist` folder.
 
 ### Incrementing the Version
 
-This action uses [git-version-lite] to examine commit messages to determine whether to perform a major, minor or patch increment on merge.  The following table provides the fragment that should be included in a commit message to active different increment strategies.
-| Increment Type | Commit Message Fragment                     |
+This action uses [git-version-lite] to examine commit messages to determine whether to perform a major, minor or patch increment on merge. The following table provides the fragment that should be included in a commit message to active different increment strategies.
+| Increment Type | Commit Message Fragment |
 | -------------- | ------------------------------------------- |
-| major          | +semver:breaking                            |
-| major          | +semver:major                               |
-| minor          | +semver:feature                             |
-| minor          | +semver:minor                               |
+| major | +semver:breaking |
+| major | +semver:major |
+| minor | +semver:feature |
+| minor | +semver:minor |
 | patch          | *default increment type, no comment needed* |
 
 ## Code of Conduct
@@ -135,3 +109,4 @@ This project has adopted the [im-open's Code of Conduct](https://github.com/im-o
 Copyright &copy; 2022, Extend Health, LLC. Code released under the [MIT license](LICENSE).
 
 [git-version-lite]: https://github.com/im-open/git-version-lite
+[im-open's]: https://github.com/im-open
