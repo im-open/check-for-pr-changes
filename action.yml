@@ -1,16 +1,21 @@
-name: 'JavaScript Action Template'
+name: 'check-if-pr-has-code-changes'
 
-description: 'Add description here'
+description: 'Determines if changes were made to a specific files or folders in a PR'
 
 inputs:
-  input-1:
-    description: 'Add a description here'
+  files-with-code:
+    description: 'A comma separated list of files to check for changes.'
+    required: false
+  folders-with-code:
+    description: 'A comma separated list of folders to check for changes.'
+    required: false
+  token:
+    description: 'Token used to retrieve the PR information'
     required: true
 
 outputs:
-  output-1:
-    description: 'Add a description here'
-
+  HAS_CODE_CHANGES:
+    description: 'Flag indicating whether changes were found in the code files or code folders.'
 runs:
   using: 'node16'
   main: 'dist/index.js'

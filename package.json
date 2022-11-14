@@ -1,5 +1,5 @@
 {
-  "name": "javascript-action-template",
+  "name": "check-if-pr-has-code-changes",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -13,7 +13,8 @@
   "author": "wtw",
   "license": "ISC",
   "dependencies": {
-    "@actions/core": "^1.10.0"
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^5.1.1"
   },
   "devDependencies": {
     "esbuild": "^0.12.29",
