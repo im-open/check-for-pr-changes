@@ -1,8 +1,10 @@
-# check-if-pr-has-code-changes
+# did-custom-action-code-change
 
 This action has been customized for [im-open's] needs and may not work exactly for your use case. Please feel free to fork this repository if it needs to be customized.
 
-This action can determine if changes were made to specific files or folders which make up the code portion of a custom action. It is intended to be used in the same repo where the PRs are created and in a workflow with a `pull_request` trigger.
+This action outputs a flag indicating whether the changes in the PR were to code files and code folders so the build workflow knows whether the action version should be incremented or not. It does this by gathering the list of files and folders changed in a PR through the GH API. The action then compares that list against the list of `files-with-code` and `folders-with-code` to determine if any of those source code items were changed.
+
+This action is intended to be used in the same repo where the PRs are created and in a workflow with a `pull_request` trigger.
 
 ## Index
 
@@ -25,9 +27,9 @@ This action can determine if changes were made to specific files or folders whic
 
 ## Outputs
 
-| Output             | Description                                                                   |
-| ------------------ | ----------------------------------------------------------------------------- |
-| `HAS_CODE_CHANGES` | Flag indicating whether changes were found in the code files or code folders. |
+| Output        | Description                                                                   |
+| ------------- | ----------------------------------------------------------------------------- |
+| `HAS_CHANGES` | Flag indicating whether changes were found in the code files or code folders. |
 
 ## Usage Examples
 
@@ -42,15 +44,15 @@ jobs:
         run: npm run build
 
       - name: Check for code changes to the action
-        id: pr
-        uses: im-open/check-if-pr-has-code-changes@v1.0.0
+        id: action-code
+        uses: im-open/did-custom-action-code-change@v1.0.1
         with:
           files-with-code: 'action.yml,package.json,package-lock.json'
           folders-with-code: 'src,dist'
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Commit unstaged changes if there are code changes
-        if: steps.pr.outputs.HAS_CODE_CHANGES == 'true'
+        if: steps.action-code.outputs.HAS_CHANGES == 'true'
         run: |
           if [[ "$(git status --porcelain)" != "" ]]; then
             git add .
@@ -68,11 +70,15 @@ When creating new PRs please ensure:
 1. For major or minor changes, at least one of the commit messages contains the appropriate `+semver:` keywords listed under [Incrementing the Version](#incrementing-the-version).
 1. The action code does not contain sensitive information.
 
-When a pull request is created, a workflow will run that will recompile the action and push a commit to the branch if the PR author has not done so. The usage examples in the README.md will also be updated with the next version if they have not been updated manually.
+When a pull request is created and there are changes to code-specific files and folders, the build workflow will run and it will recompile the action and push a commit to the branch if the PR author has not done so. The usage examples in the README.md will also be updated with the next version if they have not been updated manually. The following files and folders contain action code and will trigger the automatic updates:
 
-1. The action has been recompiled. See the [Recompiling](#recompiling-manually) section below for more details.
-1. The `README.md` example has been updated with the new version. See [Incrementing the Version](#incrementing-the-version).
-1. This should happen automatically with most pull requests as part of the build workflow. There may be some instances where the bot does not have permission to push back to the branch though so these steps should be done manually on those branches.
+- action.yml
+- package.json
+- package-lock.json
+- src/\*\*
+- dist/\*\*
+
+There may be some instances where the bot does not have permission to push changes back to the branch though so these steps should be done manually for those branches. See [Recompiling Manually](#recompiling-manually) and [Incrementing the Version](#incrementing-the-version) for more details.
 
 ### Recompiling Manually
 
@@ -91,13 +97,16 @@ its dependencies into a single file located in the `dist` folder.
 
 ### Incrementing the Version
 
+Both the build and PR merge workflows will use the strategies below to determine what the next version will be.  If the build workflow was not able to automatically update the README.md action examples with the next version, the README.md should be updated manually as part of the PR using that calculated version.
+
 This action uses [git-version-lite] to examine commit messages to determine whether to perform a major, minor or patch increment on merge. The following table provides the fragment that should be included in a commit message to active different increment strategies.
-| Increment Type | Commit Message Fragment |
+
+| Increment Type | Commit Message Fragment                     |
 | -------------- | ------------------------------------------- |
-| major | +semver:breaking |
-| major | +semver:major |
-| minor | +semver:feature |
-| minor | +semver:minor |
+| major          | +semver:breaking                            |
+| major          | +semver:major                               |
+| minor          | +semver:feature                             |
+| minor          | +semver:minor                               |
 | patch          | *default increment type, no comment needed* |
 
 ## Code of Conduct
