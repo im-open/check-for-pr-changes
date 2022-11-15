@@ -14,7 +14,7 @@ inputs:
     required: true
 
 outputs:
-  HAS_CODE_CHANGES:
+  HAS_CHANGES:
     description: 'Flag indicating whether changes were found in the code files or code folders.'
 runs:
   using: 'node16'

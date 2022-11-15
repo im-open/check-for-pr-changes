@@ -16631,7 +16631,7 @@ async function run() {
   const matchingFiles = filesToCheckForChanges.filter(f => filesChangedInPr.includes(f)) || [];
   const matchingFolders = foldersToCheckForChanges.filter(f => foldersChangedInPr.includes(f)) || [];
   const hasMatchingChanges = matchingFiles.length > 0 || matchingFolders.length > 0;
-  core.setOutput('HAS_CODE_CHANGES', hasMatchingChanges);
+  core.setOutput('HAS_CHANGES', hasMatchingChanges);
 }
 run();
 /*!

@@ -52,7 +52,7 @@ async function run() {
 
   const hasMatchingChanges = matchingFiles.length > 0 || matchingFolders.length > 0;
 
-  core.setOutput('HAS_CODE_CHANGES', hasMatchingChanges);
+  core.setOutput('HAS_CHANGES', hasMatchingChanges);
 }
 
 run();
