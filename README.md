@@ -1,6 +1,6 @@
 # did-custom-action-code-change
 
-This action has been customized for [im-open's] needs and may not work exactly for your use case. Please feel free to fork this repository if it needs to be customized.
+This action has been customized for [im-open's] needs and may not work exactly for your use case. Please feel free to fork this repository if it needs to be customized.  A more robust change detection action [identify-changes-action](https://github.com/im-open/identify-changes-action) can be used.
 
 This action outputs a flag indicating whether the changes in the PR were to code files and code folders so the build workflow knows whether the action version should be incremented or not. It does this by gathering the list of files and folders changed in a PR through the GH API. The action then compares that list against the list of `files-with-code` and `folders-with-code` to determine if any of those source code items were changed.
 
