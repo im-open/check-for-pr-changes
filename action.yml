@@ -1,6 +1,6 @@
-name: 'check-if-pr-has-code-changes'
+name: check-if-pr-has-code-changes
 
-description: 'Determines if changes were made to a specific files or folders in a PR'
+description: Determines if changes were made to a specific files or folders in a PR
 
 inputs:
   files-with-code:

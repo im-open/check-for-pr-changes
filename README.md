@@ -45,7 +45,8 @@ jobs:
 
       - name: Check for code changes to the action
         id: action-code
-        uses: im-open/did-custom-action-code-change@v1.0.1
+        # You may also reference just the major or major.minor version
+        uses: im-open/did-custom-action-code-change@v1.0.2
         with:
           files-with-code: 'action.yml,package.json,package-lock.json'
           folders-with-code: 'src,dist'
