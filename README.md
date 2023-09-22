@@ -30,9 +30,10 @@ This action is intended to be used in the same repo where the PRs are created an
 
 ## Outputs and Environment Variables
 
-| Output        | Description                                                                   |
-|---------------|-------------------------------------------------------------------------------|
-| `HAS_CHANGES` | Flag indicating whether changes were found in the code files or code folders. |
+| Output                 | Description                                                                   |
+|------------------------|-------------------------------------------------------------------------------|
+| `outputs.HAS_CHANGES`  | Flag indicating whether changes were found in the code files or code folders. |
+| `env.CODE_HAS_CHANGED` | Flag indicating whether changes were found in the code files or code folders. |
 
 ## Usage Examples
 
@@ -56,7 +57,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Commit unstaged changes if there are code changes
-        if: steps.action-code.outputs.HAS_CHANGES == 'true' # can also use env.HAS_CHANGES
+        if: steps.action-code.outputs.HAS_CHANGES == 'true' # can also use env.CODE_HAS_CHANGED
         run: |
           if [[ "$(git status --porcelain)" != "" ]]; then
             git add .
