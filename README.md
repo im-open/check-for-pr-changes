@@ -10,7 +10,7 @@ This action is intended to be used in the same repo where the PRs are created an
 
 - [did-custom-action-code-change](#did-custom-action-code-change)
   - [Inputs](#inputs)
-  - [Outputs](#outputs)
+  - [Outputs and Environment Variables](#outputs-and-environment-variables)
   - [Usage Examples](#usage-examples)
   - [Contributing](#contributing)
     - [Incrementing the Version](#incrementing-the-version)
@@ -28,11 +28,12 @@ This action is intended to be used in the same repo where the PRs are created an
 | `folders-with-code` | false       | N/A     | A comma separated list of folders with code to check for changes. |
 | `token`             | true        | N/A     | A token with permission to retrieve PR information.               |
 
-## Outputs
+## Outputs and Environment Variables
 
-| Output        | Description                                                                   |
-|---------------|-------------------------------------------------------------------------------|
-| `HAS_CHANGES` | Flag indicating whether changes were found in the code files or code folders. |
+| Output                 | Description                                                                   |
+|------------------------|-------------------------------------------------------------------------------|
+| `outputs.HAS_CHANGES`  | Flag indicating whether changes were found in the code files or code folders. |
+| `env.CODE_HAS_CHANGED` | Flag indicating whether changes were found in the code files or code folders. |
 
 ## Usage Examples
 
@@ -49,14 +50,14 @@ jobs:
       - name: Check for code changes to the action
         id: action-code
         # You may also reference just the major or major.minor version
-        uses: im-open/did-custom-action-code-change@v1.0.2
+        uses: im-open/did-custom-action-code-change@v1.0.3
         with:
           files-with-code: 'action.yml,package.json,package-lock.json'
           folders-with-code: 'src,dist'
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Commit unstaged changes if there are code changes
-        if: steps.action-code.outputs.HAS_CHANGES == 'true'
+        if: steps.action-code.outputs.HAS_CHANGES == 'true' # can also use env.CODE_HAS_CHANGED
         run: |
           if [[ "$(git status --porcelain)" != "" ]]; then
             git add .
